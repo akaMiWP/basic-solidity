@@ -1,0 +1,19 @@
+{
+  "name": "onboarding-with-hardhat",
+  "version": "1.0.0",
+  "description": "This is a simple solidity onboarding project that contains a Counter.sol file just to run on RemixVM",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-akaMiWP:akaMiWP/basic-solidity.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.3"
+  }
+}
