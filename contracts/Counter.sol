@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: UNLICENSED
+
 // Use 0.8.25+commit.b61c2a91 compiler on Remix VM
 pragma solidity ^0.8.0;
 
