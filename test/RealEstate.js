@@ -1,6 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+const ether = (ether) => {
+  return ethers.parseEther(ether);
+};
+
 describe("Real Estate", () => {
   let realEstate, escrow;
   let deployer, seller, buyer;
@@ -19,6 +23,8 @@ describe("Real Estate", () => {
     escrow = await Escrow.deploy(
       await realEstate.getAddress(),
       nftID,
+      ether("1"),
+      ether("0.2"),
       buyer.address,
       seller.address
     );

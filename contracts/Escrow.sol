@@ -8,17 +8,23 @@ interface IERC721 {
 contract Escrow {
     address public nftAddress;
     uint256 public nftID;
+    uint256 public purchasePrice;
+    uint256 public escrowAmount;
     address payable buyer;
     address payable seller;
 
     constructor(
         address _nftAddress,
         uint256 _nftID,
+        uint256 _purchasePrice,
+        uint256 _escrowAmount,
         address payable _buyer,
         address payable _seller
     ) {
         nftAddress = _nftAddress;
         nftID = _nftID;
+        purchasePrice = _purchasePrice;
+        escrowAmount = _escrowAmount;
         buyer = _buyer;
         seller = _seller;
     }
