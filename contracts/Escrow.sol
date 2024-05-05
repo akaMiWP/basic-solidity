@@ -33,4 +33,10 @@ contract Escrow {
         IERC721 nft = IERC721(nftAddress);
         nft.transferFrom(seller, buyer, nftID);
     }
+
+    function depositEarnest() public payable {}
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
 }

@@ -1,14 +1,20 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-const ether = (ether) => {
+const convertEtherToWei = (ether) => {
   return ethers.parseEther(ether);
+};
+
+const convertWeiToEther = (wei) => {
+  return ethers.formatUnits(wei, "ether");
 };
 
 describe("Real Estate", () => {
   let realEstate, escrow;
   let deployer, seller, buyer;
   let nftID = 1;
+  let purchasePrice = "1";
+  let escrowAmount = "0.2";
 
   beforeEach(async () => {
     const accounts = await ethers.getSigners();
@@ -23,8 +29,8 @@ describe("Real Estate", () => {
     escrow = await Escrow.deploy(
       await realEstate.getAddress(),
       nftID,
-      ether("1"),
-      ether("0.2"),
+      convertEtherToWei(purchasePrice),
+      convertEtherToWei(escrowAmount),
       buyer.address,
       seller.address
     );
@@ -47,6 +53,14 @@ describe("Real Estate", () => {
       await realEstate.connect(seller).approve(escrow.target, nftID);
 
       expect(await realEstate.ownerOf(nftID)).to.equal(seller.address);
+
+      await escrow.connect(buyer).depositEarnest({
+        value: convertEtherToWei(escrowAmount),
+      });
+      let balance = await escrow.getBalance();
+      console.log("Balance is:", balance);
+      expect(convertWeiToEther(balance)).to.equal(escrowAmount);
+
       let transaction = await escrow.connect(buyer).finalizeSale();
 
       expect(await realEstate.ownerOf(nftID)).to.equal(buyer.address);
