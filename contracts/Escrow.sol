@@ -28,6 +28,8 @@ contract Escrow {
 
     mapping(address => bool) public approvalDict;
 
+    receive() external payable {}
+
     constructor(
         address _nftAddress,
         uint256 _nftID,
@@ -69,6 +71,7 @@ contract Escrow {
         require(approvalDict[buyer], "A buyer must approve");
         require(approvalDict[seller], "A seller must approve");
         require(approvalDict[lender], "A lender must approve");
+        require(address(this).balance >= purchasePrice, "Must have enough ether for sale");
 
         IERC721 nft = IERC721(nftAddress);
         nft.transferFrom(seller, buyer, nftID);

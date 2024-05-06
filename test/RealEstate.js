@@ -15,6 +15,7 @@ describe("Real Estate", () => {
   let nftID = 1;
   let purchasePrice = "1";
   let escrowAmount = "0.2";
+  let lenderAmount = "0.8";
 
   beforeEach(async () => {
     const accounts = await ethers.getSigners();
@@ -63,11 +64,19 @@ describe("Real Estate", () => {
       await realEstate.connect(seller).approve(escrow.target, nftID);
 
       expect(await realEstate.ownerOf(nftID)).to.equal(seller.address);
+
+      // Buyer deposit a down payment
       await escrow.connect(buyer).depositEarnest({
         value: convertEtherToWei(escrowAmount),
       });
       let balance = await escrow.getBalance();
       expect(convertWeiToEther(balance)).to.equal(escrowAmount);
+
+      // Lender deposits the rest
+      await lender.sendTransaction({
+        to: await escrow.getAddress(),
+        value: convertEtherToWei(lenderAmount),
+      });
 
       await escrow.connect(inspector).updateInspectionPassed(true);
       await escrow.connect(buyer).approveSale();
