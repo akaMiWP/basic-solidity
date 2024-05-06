@@ -83,8 +83,16 @@ describe("Real Estate", () => {
       await escrow.connect(seller).approveSale();
       await escrow.connect(lender).approveSale();
 
+      let beforeSaleSellerBalance = await ethers.provider.getBalance(
+        seller.address
+      );
       let transaction = await escrow.connect(buyer).finalizeSale();
+
       expect(await realEstate.ownerOf(nftID)).to.equal(buyer.address);
+      expect(await escrow.getBalance()).to.equal(0);
+      expect(await ethers.provider.getBalance(seller.address)).to.be.above(
+        beforeSaleSellerBalance
+      );
     });
   });
 });
