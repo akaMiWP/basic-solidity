@@ -11,7 +11,7 @@ const convertWeiToEther = (wei) => {
 
 describe("Real Estate", () => {
   let realEstate, escrow;
-  let deployer, seller, buyer;
+  let deployer, seller, buyer, inspector;
   let nftID = 1;
   let purchasePrice = "1";
   let escrowAmount = "0.2";
@@ -21,6 +21,7 @@ describe("Real Estate", () => {
     deployer = accounts[0];
     seller = deployer;
     buyer = accounts[1];
+    inspector = accounts[2];
 
     const RealEstate = await ethers.getContractFactory("RealEstate");
     const Escrow = await ethers.getContractFactory("Escrow");
@@ -32,7 +33,8 @@ describe("Real Estate", () => {
       convertEtherToWei(purchasePrice),
       convertEtherToWei(escrowAmount),
       buyer.address,
-      seller.address
+      seller.address,
+      inspector.address
     );
 
     await realEstate.waitForDeployment();
@@ -49,11 +51,16 @@ describe("Real Estate", () => {
   });
 
   describe("Selling a real estate", async () => {
+    it("call an inspection update", async () => {
+      expect(await escrow.isInspectionPassed()).to.equal(false);
+      await escrow.connect(inspector).updateInspectionPassed(true);
+      expect(await escrow.isInspectionPassed()).to.equal(true);
+    });
+
     it("executes a successful transaction", async () => {
       await realEstate.connect(seller).approve(escrow.target, nftID);
 
       expect(await realEstate.ownerOf(nftID)).to.equal(seller.address);
-
       await escrow.connect(buyer).depositEarnest({
         value: convertEtherToWei(escrowAmount),
       });
@@ -62,7 +69,6 @@ describe("Real Estate", () => {
       expect(convertWeiToEther(balance)).to.equal(escrowAmount);
 
       let transaction = await escrow.connect(buyer).finalizeSale();
-
       expect(await realEstate.ownerOf(nftID)).to.equal(buyer.address);
     });
   });
