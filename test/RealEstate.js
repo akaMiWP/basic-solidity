@@ -11,7 +11,7 @@ const convertWeiToEther = (wei) => {
 
 describe("Real Estate", () => {
   let realEstate, escrow;
-  let deployer, seller, buyer, inspector;
+  let deployer, seller, buyer, inspector, lender;
   let nftID = 1;
   let purchasePrice = "1";
   let escrowAmount = "0.2";
@@ -22,6 +22,7 @@ describe("Real Estate", () => {
     seller = deployer;
     buyer = accounts[1];
     inspector = accounts[2];
+    lender = accounts[3];
 
     const RealEstate = await ethers.getContractFactory("RealEstate");
     const Escrow = await ethers.getContractFactory("Escrow");
@@ -34,7 +35,8 @@ describe("Real Estate", () => {
       convertEtherToWei(escrowAmount),
       buyer.address,
       seller.address,
-      inspector.address
+      inspector.address,
+      lender.address
     );
 
     await realEstate.waitForDeployment();
@@ -65,8 +67,12 @@ describe("Real Estate", () => {
         value: convertEtherToWei(escrowAmount),
       });
       let balance = await escrow.getBalance();
-      console.log("Balance is:", balance);
       expect(convertWeiToEther(balance)).to.equal(escrowAmount);
+
+      await escrow.connect(inspector).updateInspectionPassed(true);
+      await escrow.connect(buyer).approveSale();
+      await escrow.connect(seller).approveSale();
+      await escrow.connect(lender).approveSale();
 
       let transaction = await escrow.connect(buyer).finalizeSale();
       expect(await realEstate.ownerOf(nftID)).to.equal(buyer.address);

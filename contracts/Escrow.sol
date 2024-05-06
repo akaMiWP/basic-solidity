@@ -13,6 +13,7 @@ contract Escrow {
     address payable buyer;
     address payable seller;
     address public inspector;
+    address public lender;
     bool public isInspectionPassed;
 
     modifier onlyBuyer() {
@@ -25,6 +26,8 @@ contract Escrow {
         _;
     }
 
+    mapping(address => bool) public approvalDict;
+
     constructor(
         address _nftAddress,
         uint256 _nftID,
@@ -32,7 +35,8 @@ contract Escrow {
         uint256 _escrowAmount,
         address payable _buyer,
         address payable _seller,
-        address _inspector
+        address _inspector,
+        address _lender
     ) {
         nftAddress = _nftAddress;
         nftID = _nftID;
@@ -41,6 +45,7 @@ contract Escrow {
         buyer = _buyer;
         seller = _seller;
         inspector = _inspector;
+        lender = _lender;
     }
 
     function depositEarnest() public payable onlyBuyer {
@@ -51,11 +56,20 @@ contract Escrow {
         isInspectionPassed = _passed;
     }
 
+    function approveSale() public {
+        approvalDict[msg.sender] = true;
+    }
+
     function getBalance() public view returns (uint) {
         return address(this).balance;
     }
 
     function finalizeSale() public {
+        require(isInspectionPassed, "Must pass inspection test");
+        require(approvalDict[buyer], "A buyer must approve");
+        require(approvalDict[seller], "A seller must approve");
+        require(approvalDict[lender], "A lender must approve");
+
         IERC721 nft = IERC721(nftAddress);
         nft.transferFrom(seller, buyer, nftID);
     }
